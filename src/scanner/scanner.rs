@@ -1,39 +1,52 @@
+use std::{path::Path, time::Instant};
+
+use rayon::prelude::*;
 use walkdir::WalkDir;
 
 use crate::{models::file_entry::FileEntry, platforms};
 
 pub fn scan() -> Vec<FileEntry> {
-    let mut entries = Vec::new();
-    let root_paths = platforms::roots();
-    for root in root_paths {
-        let p = match root.to_str() {
-            Some(path) => path,
-            None => continue
-        };
+    platforms::roots()
+        .par_iter()
+        .flat_map_iter(|root| scan_root(root))
+        .collect()
+}
 
-        for entry in WalkDir::new(p) {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
+fn scan_root(root: &Path) -> Vec<FileEntry> {
+    let start = Instant::now();
+    let mut entries = Vec::new();
+
+    let Some(p) = root.to_str() else {
+        return entries;
+    };
+
+    for entry in WalkDir::new(p) {
+        let Ok(entry) = entry else { continue };
 
         if !entry.file_type().is_file() {
             continue;
         }
 
-        let metadata = match entry.metadata() {
-            Ok(m) => m,
-            Err(_) => continue,
+        let Ok(metadata) = entry.metadata() else {
+            continue;
         };
 
-        println!("Scanned ==> {:?}/{}", entry.path().to_path_buf(), entry.file_name().to_string_lossy().to_string());
+        let filename = entry.file_name().to_string_lossy().into_owned();
+        let path = entry.path().to_path_buf();
+
         entries.push(FileEntry {
-            path: entry.path().to_path_buf(),
-            filename: entry.file_name().to_string_lossy().to_string(),
+            path,
+            filename,
             size: metadata.len(),
         });
-        }
     }
 
+    let duration = start.elapsed();
+    println!(
+        "{:?} Took {:?}, scanned {} files",
+        root,
+        duration,
+        entries.len()
+    );
     entries
 }
