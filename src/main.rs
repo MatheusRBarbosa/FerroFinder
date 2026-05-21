@@ -1,3 +1,4 @@
+mod configs;
 mod models;
 mod platforms;
 mod scanner;

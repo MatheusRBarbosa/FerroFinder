@@ -4,16 +4,17 @@ use chrono::{DateTime, Local};
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
-use crate::{models::file_entry::FileEntry, platforms};
+use crate::{configs::IgnoreRules, models::file_entry::FileEntry, platforms};
 
 pub fn scan() -> Vec<FileEntry> {
+    let rules = IgnoreRules::defaults();
     platforms::roots()
         .par_iter()
-        .flat_map_iter(|root| scan_root(root))
+        .flat_map_iter(|root| scan_root(root, &rules))
         .collect()
 }
 
-fn scan_root(root: &Path) -> Vec<FileEntry> {
+fn scan_root(root: &Path, rules: &IgnoreRules) -> Vec<FileEntry> {
     let start = Instant::now();
     let mut entries = Vec::new();
 
@@ -21,7 +22,11 @@ fn scan_root(root: &Path) -> Vec<FileEntry> {
         return entries;
     };
 
-    for entry in WalkDir::new(p) {
+    let walker = WalkDir::new(p)
+        .into_iter()
+        .filter_entry(|e| !rules.is_ignored(e.path()));
+
+    for entry in walker {
         let Ok(entry) = entry else { continue };
 
         if !entry.file_type().is_file() {

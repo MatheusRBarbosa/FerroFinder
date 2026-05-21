@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use windows::core::PCWSTR;
 use windows::Win32::Storage::FileSystem::{GetDriveTypeW, GetLogicalDrives};
+use windows::core::PCWSTR;
 
 const DRIVE_FIXED: u32 = 3;
 
@@ -24,6 +24,18 @@ pub fn roots() -> Vec<PathBuf> {
     }
 
     out
+}
+
+pub fn ignored_paths() -> Vec<PathBuf> {
+    [
+        "SystemRoot",
+        "ProgramFiles",
+        "ProgramFiles(x86)",
+        "ProgramData",
+    ]
+    .iter()
+    .filter_map(|f| std::env::var_os(f).map(PathBuf::from))
+    .collect()
 }
 
 fn drive_type(root: &str) -> u32 {
