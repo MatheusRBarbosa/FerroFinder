@@ -1,6 +1,6 @@
 mod models;
-mod scanner;
 mod platforms;
+mod scanner;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -11,7 +11,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    Scan {}
+    Scan {},
 }
 
 fn main() {
