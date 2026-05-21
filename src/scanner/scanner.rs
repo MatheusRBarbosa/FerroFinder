@@ -1,5 +1,6 @@
 use std::{path::Path, time::Instant};
 
+use chrono::{DateTime, Local};
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
@@ -31,13 +32,42 @@ fn scan_root(root: &Path) -> Vec<FileEntry> {
             continue;
         };
 
-        let filename = entry.file_name().to_string_lossy().into_owned();
         let path = entry.path().to_path_buf();
+        let filename = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+
+        let extension = path
+            .extension()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+
+        let modified_at: DateTime<Local> = metadata
+            .modified()
+            .map(DateTime::<Local>::from)
+            .unwrap_or(Local::now());
+
+        let created_at = metadata
+            .created()
+            .map(DateTime::<Local>::from)
+            .unwrap_or(Local::now());
+
+        let last_access_at = metadata
+            .accessed()
+            .map(DateTime::<Local>::from)
+            .unwrap_or(Local::now());
 
         entries.push(FileEntry {
             path,
             filename,
+            extension,
             size: metadata.len(),
+            modified_at,
+            created_at,
+            last_access_at,
         });
     }
 
