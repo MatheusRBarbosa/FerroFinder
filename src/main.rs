@@ -18,7 +18,7 @@ fn main() {
     let cli = Cli::parse();
     match cli.command {
         Commands::Scan {} => {
-            let a = scanner::scanner::scan();
+            let a = scanner::scan();
             println!("Found {} files", a.len());
         }
     }

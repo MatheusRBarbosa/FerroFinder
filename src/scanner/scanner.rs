@@ -4,7 +4,7 @@ use crate::{models::file_entry::FileEntry, platforms};
 
 pub fn scan() -> Vec<FileEntry> {
     let mut entries = Vec::new();
-    let root_paths = platforms::windows::platform::roots();
+    let root_paths = platforms::roots();
     for root in root_paths {
         let p = match root.to_str() {
             Some(path) => path,
