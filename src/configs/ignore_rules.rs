@@ -18,6 +18,7 @@ const DEFAULT_LEAF_NAMES: &[&str] = &[
     ".svn",
     ".hg",
     "node_modules",
+    "npm-cache",
     ".pnpm-store",
     ".yarn",
     ".next",
@@ -36,6 +37,7 @@ const DEFAULT_LEAF_NAMES: &[&str] = &[
     ".pytest_cache",
     ".tox",
     ".gradle",
+    ".jest-cache",
     ".mvn",
     "build",
     "out",
@@ -46,6 +48,8 @@ const DEFAULT_LEAF_NAMES: &[&str] = &[
     "temp",
     "logs",
     "log",
+    "AppData",
+    "go",
 ];
 
 impl IgnoreRules {

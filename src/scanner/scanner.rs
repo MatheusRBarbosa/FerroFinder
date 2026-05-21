@@ -65,6 +65,7 @@ fn scan_root(root: &Path, rules: &IgnoreRules) -> Vec<FileEntry> {
             .map(DateTime::<Local>::from)
             .unwrap_or(Local::now());
 
+        // println!("Scanned => {:?}/{}", path, filename);
         entries.push(FileEntry {
             path,
             filename,
